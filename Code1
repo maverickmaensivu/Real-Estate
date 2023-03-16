@@ -1,0 +1,81 @@
+import { useState, useEffect } from 'react';
+import Head from 'next/head';
+import Image from 'next/image';
+import { FaSun, FaMoon } from 'react-icons/fa';
+import styles from '../styles/Home.module.css';
+
+export default function Home() {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [listings, setListings] = useState([]);
+  const [locationFilter, setLocationFilter] = useState('');
+  const [priceFilter, setPriceFilter] = useState('');
+  const [bedroomsFilter, setBedroomsFilter] = useState('');
+  const [bathroomsFilter, setBathroomsFilter] = useState('');
+
+  useEffect(() => {
+    const zillowApiKey = process.env.ZILLOW_API_KEY;
+    const realtorApiKey = process.env.REALTOR_API_KEY;
+    const redfinApiKey = process.env.REDFIN_API_KEY;
+
+    const fetchListings = async () => {
+      const zillowResponse = await fetch(`https://api.bridgedataoutput.com/api/v2/zillow?access_token=${zillowApiKey}&city=Orlando&limit=10`);
+      const zillowData = await zillowResponse.json();
+      const realtorResponse = await fetch(`https://api.bridgedataoutput.com/api/v2/realtor?access_token=${realtorApiKey}&city=Orlando&limit=10`);
+      const realtorData = await realtorResponse.json();
+      const redfinResponse = await fetch(`https://api.bridgedataoutput.com/api/v2/redfin?access_token=${redfinApiKey}&city=Orlando&limit=10`);
+      const redfinData = await redfinResponse.json();
+      const allListings = [...zillowData.bundle, ...realtorData.bundle, ...redfinData.bundle];
+      setListings(allListings);
+    };
+
+    fetchListings();
+  }, []);
+
+  const handleModeToggle = () => {
+    setIsDarkMode(!isDarkMode);
+  };
+
+  const handleLocationFilterChange = (e) => {
+    setLocationFilter(e.target.value);
+  };
+
+  const handlePriceFilterChange = (e) => {
+    setPriceFilter(e.target.value);
+  };
+
+  const handleBedroomsFilterChange = (e) => {
+    setBedroomsFilter(e.target.value);
+  };
+
+  const handleBathroomsFilterChange = (e) => {
+    setBathroomsFilter(e.target.value);
+  };
+
+  const filteredListings = listings.filter((listing) => {
+    if (locationFilter && listing.location !== locationFilter) {
+      return false;
+    }
+    if (priceFilter && listing.price > priceFilter) {
+      return false;
+    }
+    if (bedroomsFilter && listing.bedrooms !== bedroomsFilter) {
+      return false;
+    }
+    if (bathroomsFilter && listing.bathrooms !== bathroomsFilter) {
+      return false;
+    }
+    return true;
+  });
+
+  return (
+    <div className={`${styles.container} ${isDarkMode ? styles.dark : styles.light}`}>
+      <Head>
+        <title>Maverick Sells</title>
+        <meta name="description" content="Real estate website for homes in Central Florida, Gainesville, and Daytona Beach" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
+      <header className={styles.header}>
+        <nav className={styles.navbar}>
+          <div className={styles.logo}>
+            <Image src={isDarkMode ? '/logo-dark.png' : '/logo-light.png'} alt="Maverick Sells" width={
