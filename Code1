@@ -78,4 +78,6 @@ export default function Home() {
       <header className={styles.header}>
         <nav className={styles.navbar}>
           <div className={styles.logo}>
-            <Image src={isDarkMode ? '/logo-dark.png' : '/logo-light.png'} alt="Maverick Sells" width={
+            <Image src={isDarkMode ? '/logo-dark.png' : '/logo-light.png'} alt="Maverick Sells" width={100} height={50} />
+          </div>
+          <ul className
